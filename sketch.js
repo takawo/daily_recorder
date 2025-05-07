@@ -903,12 +903,18 @@ function showSplashScreen() {
   splashContainer.style('z-index', '2000');
 
   // アプリ名
-  const title = createDiv(CONFIG.app.name);
-  title.style('font-size', '32px');
+  // タイトルの追加（クリッカブルに変更）
+  const title = createA('#', CONFIG.app.name);
+  title.addClass('app-title');
+  title.style('font-size', '20px');
   title.style('font-weight', 'bold');
-  title.style('color', CONFIG.colors.primary);
-  title.style('margin-bottom', '20px');
-  title.style('text-align', 'center');
+  title.style('color', CONFIG.colors.text);
+  title.style('margin-right', 'auto');
+  title.style('text-decoration', 'none');
+  title.style('cursor', 'pointer');
+  title.mousePressed(() => {
+    location.reload();
+  });
   splashContainer.child(title);
 
   // アプリの説明
