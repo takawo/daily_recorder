@@ -168,7 +168,7 @@ function createControlBarContainer() {
   title.addClass('app-title');
   title.style('font-size', '20px');
   title.style('font-weight', 'bold');
-  title.style('color', CONFIG.colors.text);
+  title.style('color', "red");
   title.style('margin-right', 'auto');
   title.style('text-decoration', 'none');
   title.style('cursor', 'pointer');
