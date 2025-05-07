@@ -1,0 +1,21 @@
+{
+    "name": "日常の記録",
+    "short_name": "日常の記録",
+    "description": "日常をボタンで数える。あなたの記録を気軽に記録しよう。",
+    "start_url": "./",
+    "display": "standalone",
+    "background_color": "#FAFAFA",
+    "theme_color": "#2196F3",
+    "icons": [
+        {
+            "src": "icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
