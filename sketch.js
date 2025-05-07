@@ -163,13 +163,18 @@ function createControlBarContainer() {
   const controlBar = createDiv('');
   controlBar.addClass('control-bar');
 
-  // タイトルの追加
-  const title = createDiv('日常の記録');
+  // タイトルの追加（クリッカブルに変更）
+  const title = createA('#', CONFIG.app.name);
   title.addClass('app-title');
   title.style('font-size', '20px');
   title.style('font-weight', 'bold');
   title.style('color', CONFIG.colors.text);
   title.style('margin-right', 'auto');
+  title.style('text-decoration', 'none');
+  title.style('cursor', 'pointer');
+  title.mousePressed(() => {
+    location.reload();
+  });
   controlBar.child(title);
 
   // ハンバーガーメニューボタン（スマホ用）
@@ -189,7 +194,7 @@ function createControlBarContainer() {
   const buttonContainer = createDiv('');
   buttonContainer.id('control-buttons-container');
   buttonContainer.addClass('control-buttons-container');
-  buttonContainer.style('display', 'flex');
+  buttonContainer.style('display', windowWidth <= 768 ? 'none' : 'flex');
   buttonContainer.style('gap', '8px');
   buttonContainer.style('align-items', 'center');
   controlBar.child(buttonContainer);
@@ -525,7 +530,14 @@ function applyGlobalStyles() {
         padding: 16px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         z-index: 1000;
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .control-buttons-container button {
+        flex: 0 1 auto;
+        min-width: 140px;
+        margin: 4px;
       }
       .control-bar {
         justify-content: space-between;
@@ -533,7 +545,7 @@ function applyGlobalStyles() {
       /* スマホ表示時のリセットボタンのスタイル */
       .btn-secondary[style*="background: #666"] {
         margin-left: 0 !important;
-        margin-top: 8px;
+        margin-top: 0 !important;
       }
     }
   `;
@@ -688,7 +700,7 @@ function createAddNewButton() {
   addNewBtn.style('left', '50%');
   addNewBtn.style('bottom', '20px');
   addNewBtn.style('transform', 'translateX(-50%)');
-  addNewBtn.style('background', CONFIG.colors.success);
+  addNewBtn.style('background', CONFIG.colors.primary);
   addNewBtn.style('color', 'white');
   addNewBtn.style('padding', '12px 24px');
   addNewBtn.style('border-radius', '8px');
