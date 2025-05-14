@@ -37,6 +37,7 @@ const CONFIG = {
 };
 
 // グローバル変数
+let setupCalled = false; // p5.jsのsetup関数が呼び出されたかを追跡
 let state = {
   buttonCount: CONFIG.initialButtonCount,
   buttonNames: [],
@@ -51,7 +52,19 @@ let state = {
 
 // 初期化関数
 function setup() {
-  noCanvas();
+  noCanvas(); // キャンバスを無効化する行をコメントアウト
+
+  // p5.jsの初期化チェック
+  window.setupCalled = true; // グローバルスコープに設定
+  setupCalled = true;
+
+  // コンソールにメッセージを出力（デバッグ用）
+  console.log('setup関数が呼び出された'); // ブラウザのコンソールに出力
+
+  // // キャンバスを作成
+  // createCanvas(windowWidth, windowHeight);
+  // background(240);
+
   if (!localStorage.getItem(CONFIG.storage.buttonData)) {
     initializeNewApp();
   } else {
@@ -363,11 +376,11 @@ function updateUI() {
 
   // ボタンが0個の場合、新規ボタン追加を促すボタンを表示
   if (state.buttonCount === 0) {
-    const addFirstButton = createButton('＋ 新しいボタンを追加');
+    const addFirstButton = createButton('日常の記録をはじめる');
     addFirstButton.addClass('add-first-button');
     addFirstButton.style('position', 'fixed');
     addFirstButton.style('left', '50%');
-    addFirstButton.style('top', '50%');
+    addFirstButton.style('top', 'calc(50% - 30px)');
     addFirstButton.style('transform', 'translate(-50%, -50%)');
     addFirstButton.style('background', CONFIG.colors.secondary);
     addFirstButton.style('color', 'white');
@@ -570,12 +583,30 @@ function createHistoryPanelContainer() {
 }
 
 function createHistoryPanelContent() {
+  // ヘッダーコンテナ（履歴タイトルと閉じるボタンを含む）
+  const headerContainer = createDiv('');
+  headerContainer.style('display', 'flex');
+  headerContainer.style('justify-content', 'space-between');
+  headerContainer.style('align-items', 'center');
+  headerContainer.style('margin-bottom', '16px');
+
   const header = createDiv('履歴');
   header.style('font-size', '20px');
   header.style('font-weight', 'bold');
-  header.style('margin-bottom', '16px');
   header.style('color', CONFIG.colors.text);
-  state.historyPanel.child(header);
+
+  // 閉じるボタン
+  const closeButton = createButton('閉じる');
+  closeButton.addClass('btn-secondary');
+  closeButton.style('padding', '6px 12px');
+  closeButton.style('font-size', '14px');
+  closeButton.mousePressed(() => {
+    hideHistoryPanel();
+  });
+
+  headerContainer.child(header);
+  headerContainer.child(closeButton);
+  state.historyPanel.child(headerContainer);
 
   // ボタン操作のコンテナ
   const buttonContainer = createDiv('');
@@ -694,17 +725,43 @@ function createHistoryPanelContent() {
 }
 
 function createAddNewButton() {
+  const containerDiv = createDiv('');
+  containerDiv.style('position', 'fixed');
+  containerDiv.style('left', '0');
+  containerDiv.style('right', '0');
+  containerDiv.style('bottom', '20px');
+  containerDiv.style('display', 'flex');
+  containerDiv.style('justify-content', 'center');
+  containerDiv.style('gap', '12px');
+  containerDiv.style('padding', '0 16px');
+
+  // スマートフォン表示の場合は縦並びに
+  if (windowWidth <= 500) {
+    containerDiv.style('flex-direction', 'column');
+    containerDiv.style('align-items', 'center');
+    containerDiv.style('bottom', '60px');  // 下部の余白を増やす
+  }
+
+  // 新規ボタン追加ボタン
   const addNewBtn = createButton('＋ 新しいボタンを追加');
   addNewBtn.addClass('add-new-button');
-  addNewBtn.style('position', 'fixed');
-  addNewBtn.style('left', '50%');
-  addNewBtn.style('bottom', '20px');
-  addNewBtn.style('transform', 'translateX(-50%)');
+  addNewBtn.style('position', 'static'); // 固定位置を解除
   addNewBtn.style('background', CONFIG.colors.primary);
   addNewBtn.style('color', 'white');
   addNewBtn.style('padding', '12px 24px');
   addNewBtn.style('border-radius', '8px');
   addNewBtn.style('box-shadow', '0 4px 6px rgba(0,0,0,0.1)');
+
+  // ウィンドウサイズに応じてボタンの幅を調整
+  if (windowWidth <= 500) {
+    addNewBtn.style('width', '80%');
+    addNewBtn.style('margin-bottom', '10px');
+    addNewBtn.style('max-width', 'none');
+  } else {
+    addNewBtn.style('flex', '1');
+    addNewBtn.style('max-width', '250px');
+  }
+
   addNewBtn.mousePressed(() => {
     if (state.buttonCount === 0) {
       state.buttonNames = [];
@@ -724,7 +781,39 @@ function createAddNewButton() {
     saveButtonData();
     updateUI();
   });
-  state.gridButtons.push(addNewBtn);
+
+  // 設定完了ボタン
+  const completeSetupButton = createButton('設定を完了');
+  completeSetupButton.addClass('complete-setup-button');
+  completeSetupButton.style('position', 'static'); // 固定位置を解除
+  completeSetupButton.style('background', CONFIG.colors.success);
+  completeSetupButton.style('color', 'white');
+  completeSetupButton.style('padding', '12px 24px');
+  completeSetupButton.style('border-radius', '8px');
+  completeSetupButton.style('box-shadow', '0 4px 6px rgba(0,0,0,0.1)');
+
+  // ウィンドウサイズに応じてボタンの幅を調整
+  if (windowWidth <= 500) {
+    completeSetupButton.style('width', '80%');
+    completeSetupButton.style('max-width', 'none');
+  } else {
+    completeSetupButton.style('flex', '1');
+    completeSetupButton.style('max-width', '250px');
+  }
+
+  completeSetupButton.mousePressed(() => {
+    // 編集モードを終了
+    state.editMode = false;
+    state.controlButtons.edit.html('ボタンを編集');
+    state.controlButtons.add.style('display', 'none');
+    state.controlButtons.remove.style('display', 'none');
+    saveButtonData();
+    updateUI();
+  });
+
+  containerDiv.child(addNewBtn);
+  containerDiv.child(completeSetupButton);
+  state.gridButtons.push(containerDiv);
 }
 
 function createGridButtons(grid) {
@@ -764,6 +853,10 @@ function createEditModeButton(btn, x, y, w, h) {
   editContainer.style('display', 'flex');
   editContainer.style('align-items', 'center');
   editContainer.style('gap', '8px');
+  // ヘッダーとの重なりを防ぐため、上部に余白を追加
+  if (y < 100) {
+    editContainer.style('top', `${Math.max(y + h * 0.3, 100)}px`);
+  }
 
   const inp = createInput(state.buttonNames[btn] === '新規ボタン' ? '' : state.buttonNames[btn]);
   inp.attribute('placeholder', '新規ボタン');
